@@ -1,0 +1,33 @@
+# Filename: Dockerfile
+
+FROM alpine:latest
+
+WORKDIR /usr/local/share/api
+COPY app.py .
+
+WORKDIR /tmp
+
+COPY requirements.txt .
+
+RUN apk update && apk add \
+    tzdata \
+    python3 \
+    py3-pip \
+    py3-sqlalchemy \
+    py3-psycopg2
+
+RUN cp /usr/share/zoneinfo/America/Santiago /etc/localtime
+RUN echo "America/Santiago" > /etc/timezone
+RUN apk del tzdata
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+RUN pip install -r requirements.txt
+
+COPY run-api.sh .
+
+RUN chmod +x run-api.sh
+
+EXPOSE 8000
+
+CMD ["./run-api.sh"]
+
