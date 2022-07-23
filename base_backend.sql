@@ -5,7 +5,7 @@
 -- Dumped from database version 13.7
 -- Dumped by pg_dump version 14.2
 
--- Started on 2022-07-22 17:00:43
+-- Started on 2022-07-22 22:50:53
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1701,7 +1701,7 @@ begin
 		if resultado.clase_epp = 1 then
 		--guante, buscar corriente de fuga
 			select corriente_fuga_max::text as fuga into resultado from dielab.epps join dielab.tipo_guante
-			on tipo_epp = id_tipo_guante where serie_epp = epp;
+			on tipo_epp = id_tipo where serie_epp = epp;
 			if found then
 				salida = '{"error":false, "msg":"' || resultado.fuga || '"}';
 			else
@@ -2769,7 +2769,10 @@ CREATE VIEW dielab.select_tecnicos_ensayo AS
     tecnicos_ensayo.nombre,
     tecnicos_ensayo.id_tecnico AS num,
     tecnicos_ensayo.nombre AS tecnico_ensayo,
-    tecnicos_ensayo.comentario,
+        CASE
+            WHEN (tecnicos_ensayo.comentario IS NULL) THEN ''::text
+            ELSE tecnicos_ensayo.comentario
+        END AS comentario,
         CASE
             WHEN tecnicos_ensayo.activo THEN 'ACTIVO'::text
             ELSE 'INACTIVO'::text
@@ -10204,6 +10207,7 @@ COPY dielab.detalle_ensayo (id_detalle, id_batea, serie_epp, aprobado, detalle) 
 8113	8106	8096	t	{"serie_epp":"MNG-00004","fuga1":"2","fuga2":"2","fuga3":"2","parches":"0","promedio":"2.00","tension":"10","resultado":"APROBADO"}
 8126	8122	8123	t	{"serie_epp":"BNQ-00001","fuga1":"5","parches":"0","tension":"10","resultado":"APROBADO"}
 8127	8117	8119	t	{"serie_epp":"MNT-00002","fuga1":"3","parches":"1","tension":"12","resultado":"APROBADO"}
+8128	8116	8053	f	{"serie_epp":"GNT-00687","fuga1":"5","parches":"0","tension":"10","resultado":"RECHAZADO"}
 \.
 
 
@@ -10251,10 +10255,10 @@ COPY dielab.encabezado_ensayo (id_batea, cod_ensayo, temperatura, humedad, tecni
 8079	LAT-GNT-00152	15	20	3	2022-07-06 12:12:08.845749	2	ingreso	1	2022-07-06	2022-07-06	7915	2022-07-06	3	2	OC-8079
 7963	LAT-GNT-123	35	30	2	2022-06-22 19:54:08.269306	1	ingreso	1	\N	\N	2656	\N	1	1	OC-7963
 7964	LAT-GNT-124	35	30	2	2022-06-22 19:54:10.524559	1	ingreso	1	\N	\N	2656	\N	1	1	OC-7964
-8116	LAT-GNT-00158	21	21	2	2022-07-13 21:19:52.595001	1	ingreso	1	2022-07-13	\N	6296	2022-07-13	1	1	OC-345
 8106	LAT-MNG-00003	23	23	1	2022-07-08 20:21:39.983645	1	ingreso	4	2022-07-08	\N	6282	2022-07-08	2	1	OC-8106
 8122	LAT-BNQ-00001	20	20	2	2022-07-20 20:59:20.153973	2	ingreso	6	2022-07-22	\N	1582	2022-07-22	2	2	OC-345
 8117	LAT-MNT-00001	21	21	1	2022-07-15 19:08:18.056931	1	ingreso	5	2022-07-15	\N	7917	2022-07-15	2	1	oc-432
+8116	LAT-GNT-00158	21	21	2	2022-07-13 21:19:52.595001	1	ingreso	1	2022-07-13	\N	6296	2022-07-13	2	1	OC-345
 \.
 
 
@@ -10290,6 +10294,7 @@ COPY dielab.epps (id_epp, serie_epp, clase_epp, tipo_epp, cliente_n_s, estado_ep
 8097	GNT-00697	1	6	1357	3	6	2
 8123	BNQ-00001	5	1	4157	1	6	2
 8119	MNT-00002	3	3	6857	1	10	2
+8053	GNT-00687	1	6	7917	1	6	2
 7991	GNT-00678	1	6	4892	0	6	2
 7992	GNT-00679	1	1	1357	0	6	2
 7993	GNT-00680	1	3	7900	0	6	2
@@ -10299,7 +10304,6 @@ COPY dielab.epps (id_epp, serie_epp, clase_epp, tipo_epp, cliente_n_s, estado_ep
 8037	GNT-00684	1	1	4142	0	6	2
 8038	GNT-00685	1	1	4575	0	6	2
 8052	GNT-00686	1	5	1017	0	6	2
-8053	GNT-00687	1	6	7917	0	6	2
 8054	GNT-00688	1	4	1357	0	6	2
 8055	GNT-00689	1	1	6857	0	6	2
 8056	GNT-00690	1	1	4897	0	6	2
@@ -10891,6 +10895,7 @@ COPY dielab.tecnicos_ensayo (id_tecnico, nombre, comentario, activo) FROM stdin;
 3	Tecnico 03	Tecnico sucursal 3 rut:333333	t
 4	Tecnico 04	Tecnico sucursal 4 rut:444444	t
 1	Tecnico 01	Tecnico sucursal 1 rut:11111	f
+5	Juan Soto	erwerwerw	t
 \.
 
 
@@ -11059,7 +11064,7 @@ SELECT pg_catalog.setval('dielab.seq_cod_ensayo', 145, true);
 -- Name: seq_id_tabla; Type: SEQUENCE SET; Schema: dielab; Owner: postgres
 --
 
-SELECT pg_catalog.setval('dielab.seq_id_tabla', 8127, true);
+SELECT pg_catalog.setval('dielab.seq_id_tabla', 8128, true);
 
 
 --
@@ -11916,7 +11921,7 @@ ALTER TABLE ONLY dielab.clase_epp
     ADD CONSTRAINT fk_tipo_ensayo FOREIGN KEY (tipo_ensayo) REFERENCES dielab.ensayos_tipo(id_ensayo_tipo) MATCH FULL ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2022-07-22 17:00:44
+-- Completed on 2022-07-22 22:50:54
 
 --
 -- PostgreSQL database dump complete
