@@ -5,7 +5,7 @@
 -- Dumped from database version 13.7
 -- Dumped by pg_dump version 14.2
 
--- Started on 2022-07-22 22:50:53
+-- Started on 2022-07-24 22:03:48
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -29,7 +29,7 @@ CREATE SCHEMA dielab;
 ALTER SCHEMA dielab OWNER TO postgres;
 
 --
--- TOC entry 305 (class 1255 OID 82332)
+-- TOC entry 306 (class 1255 OID 82332)
 -- Name: actualiza_calibracion(); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -64,7 +64,7 @@ $$;
 ALTER FUNCTION dielab.actualiza_calibracion() OWNER TO postgres;
 
 --
--- TOC entry 295 (class 1255 OID 16551)
+-- TOC entry 296 (class 1255 OID 16551)
 -- Name: actualiza_estado(); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -92,7 +92,7 @@ $$;
 ALTER FUNCTION dielab.actualiza_estado() OWNER TO postgres;
 
 --
--- TOC entry 303 (class 1255 OID 66031)
+-- TOC entry 304 (class 1255 OID 66031)
 -- Name: actualiza_nombre_marca(); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -120,7 +120,7 @@ $$;
 ALTER FUNCTION dielab.actualiza_nombre_marca() OWNER TO postgres;
 
 --
--- TOC entry 318 (class 1255 OID 90454)
+-- TOC entry 322 (class 1255 OID 90454)
 -- Name: elimina_epp(bigint, character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -181,7 +181,7 @@ $$;
 ALTER FUNCTION dielab.elimina_epp(idx bigint, accionx character varying) OWNER TO postgres;
 
 --
--- TOC entry 317 (class 1255 OID 90442)
+-- TOC entry 321 (class 1255 OID 90442)
 -- Name: elimina_param(character varying, bigint); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -248,7 +248,7 @@ $$;
 ALTER FUNCTION dielab.elimina_param(tipo_tablax character varying, idx bigint) OWNER TO postgres;
 
 --
--- TOC entry 300 (class 1255 OID 90430)
+-- TOC entry 301 (class 1255 OID 90430)
 -- Name: elimina_tecnico(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -294,7 +294,7 @@ $$;
 ALTER FUNCTION dielab.elimina_tecnico(tecnicox character varying) OWNER TO postgres;
 
 --
--- TOC entry 293 (class 1255 OID 24851)
+-- TOC entry 294 (class 1255 OID 24851)
 -- Name: emite_certificado(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -335,7 +335,7 @@ $$;
 ALTER FUNCTION dielab.emite_certificado(cod_ensayox character varying) OWNER TO postgres;
 
 --
--- TOC entry 294 (class 1255 OID 16493)
+-- TOC entry 295 (class 1255 OID 16493)
 -- Name: genera_cod_ensayo(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -385,7 +385,7 @@ $$;
 ALTER FUNCTION dielab.genera_cod_ensayo(epp character varying) OWNER TO postgres;
 
 --
--- TOC entry 291 (class 1255 OID 24791)
+-- TOC entry 292 (class 1255 OID 24791)
 -- Name: genera_cod_epp(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -423,7 +423,7 @@ $$;
 ALTER FUNCTION dielab.genera_cod_epp(epp character varying) OWNER TO postgres;
 
 --
--- TOC entry 314 (class 1255 OID 66030)
+-- TOC entry 316 (class 1255 OID 66030)
 -- Name: genera_tabla_x_epp(integer); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -503,7 +503,7 @@ $$;
 ALTER FUNCTION dielab.genera_tabla_x_epp(eppx integer) OWNER TO postgres;
 
 --
--- TOC entry 316 (class 1255 OID 74039)
+-- TOC entry 317 (class 1255 OID 74039)
 -- Name: genera_tabla_x_nombre(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -578,7 +578,7 @@ $$;
 ALTER FUNCTION dielab.genera_tabla_x_nombre(tipo_tabla character varying) OWNER TO postgres;
 
 --
--- TOC entry 292 (class 1255 OID 41277)
+-- TOC entry 293 (class 1255 OID 41277)
 -- Name: get_detalle_pdf(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -641,7 +641,59 @@ $_$;
 ALTER FUNCTION dielab.get_detalle_pdf(cod_ensayox character varying) OWNER TO postgres;
 
 --
--- TOC entry 310 (class 1255 OID 90465)
+-- TOC entry 319 (class 1255 OID 90469)
+-- Name: get_detalle_pdf_atr(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
+--
+
+CREATE FUNCTION dielab.get_detalle_pdf_atr(cod_ensayox character varying) RETURNS SETOF record
+    LANGUAGE plpgsql
+    AS $_$
+declare
+
+myrec			record;
+begin
+
+for myrec in select case when num_fila is null then '--' else num_fila end as row_number,
+case when num_serie is null then '--' else num_serie end as num_serie,
+case when marca is null then '--' else marca end as marca,
+case when largo is null then '--' else largo end as largo,
+case when usado is null then '--' else initcap(usado) end as usado,
+case when cod_clase is null then '--' else cod_clase end as cod_clase,
+case when tension_ensayo is null then '--' else tension_ensayo end as tension_ensayo,
+case when parches is null then '--' else parches end as parches,
+case when promed_fuga is null then '--' else promed_fuga end as promed_fuga,
+case when fuga_max is null then '--' else fuga_max end as fuga_max,
+case when aprobado is null then '--' else aprobado end as aprobado
+from
+	(select generate_series(1,12)::text as correlativo) as a
+	LEFT JOIN
+	(select 
+row_number() over (order by num_serie)::text as num_fila, num_serie, marca, select_largo_aterramiento.nombre::text as largo, cod_clase, tension_ensayo,
+case when parches ~ '^[0-9\.]+$' then case when parches::numeric > 0 then parches else '--' end else '--' end as parches, 
+case when aprobado = 'RECHAZADO' then 'Falla' else case when i_fuga_1 ~ '^[0-9\.]+$' then to_char(i_fuga_1::numeric, 'FM999.00') else '--' end end as promed_fuga, 
+to_char(corriente_fuga_max, 'FM9.00') as fuga_max, aprobado, estado_uso.nombre_estado::text as usado
+from dielab.lista_det_guante
+join dielab.epps on num_serie = serie_epp
+join dielab.encabezado_ensayo using (id_batea)
+join dielab.estado_uso on epps.estado_uso = estado_uso.id
+join dielab.tipo_aterramiento on tipo_epp = id_tipo
+join dielab.select_largo_aterramiento on tipo_aterramiento.largo = select_largo_aterramiento.id
+join dielab.clase_tipo on tipo_aterramiento.clase = clase_tipo.id_clase
+where cod_ensayo = cod_ensayoX) as b
+	on a.correlativo = b.num_fila loop
+		return next myrec;
+end loop;
+
+return;
+end;
+
+$_$;
+
+
+ALTER FUNCTION dielab.get_detalle_pdf_atr(cod_ensayox character varying) OWNER TO postgres;
+
+--
+-- TOC entry 313 (class 1255 OID 90465)
 -- Name: get_detalle_pdf_gnt(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -669,7 +721,7 @@ from
 (select generate_series(1,12)::text as correlativo) as a
 LEFT JOIN
 (select 
-row_number() over (order by num_serie)::text as num_fila, num_serie, marca, largo::text, cod_clase, tension_ensayo,
+row_number() over (order by num_serie)::text as num_fila, num_serie, marca, select_largo_guante.nombre::text as largo, cod_clase, tension_ensayo,
 case when parches ~ '^[0-9\.]+$' then case when parches::numeric > 0 then parches else '--' end else '--' end as parches, 
 case when aprobado = 'RECHAZADO' then 'Falla' else case when promed_fuga ~ '^[0-9\.]+$' then to_char(promed_fuga::numeric, 'FM9.00') else '--' end end as promed_fuga, 
 to_char(corriente_fuga_max, 'FM9.00') as fuga_max, aprobado, estado_uso.nombre_estado::text as usado
@@ -677,21 +729,11 @@ from dielab.lista_det_guante
 join dielab.epps on num_serie = serie_epp
 join dielab.estado_uso on epps.estado_uso = estado_uso.id
 join dielab.tipo_guante on tipo_epp = id_tipo
+join dielab.select_largo_guante on tipo_guante.largo = select_largo_guante.id
 join dielab.clase_tipo on tipo_guante.clase = clase_tipo.id_clase
 join dielab.encabezado_ensayo using (id_batea) where cod_ensayo = cod_ensayoX) as b
 on a.correlativo = b.num_fila loop
 
---for myrec in select 
---row_number() over (order by num_serie)::text, num_serie, marca, largo::text, cod_clase, tension_ensayo,
---case when parches ~ '^[0-9\.]+$' then case when parches::numeric > 0 then parches else '--' end else '--' end as parches, 
---case when aprobado = 'RECHAZADO' then 'Falla' else case when promed_fuga ~ '^[0-9\.]+$' then to_char(promed_fuga::numeric, 'FM9.00') else '--' end end as promed_fuga, 
---to_char(corriente_fuga_max, 'FM9.00') as fuga_max, aprobado
---from dielab.lista_det_guante
---join dielab.epps on num_serie = serie_epp
---join dielab.tipo_guante on tipo_epp = id_tipo
---join dielab.clase_tipo on tipo_guante.clase = clase_tipo.id_clase
---join dielab.encabezado_ensayo using (id_batea) where cod_ensayo = cod_ensayoX
---	loop
 		return next myrec;
 	end loop;
 
@@ -704,7 +746,58 @@ $_$;
 ALTER FUNCTION dielab.get_detalle_pdf_gnt(cod_ensayox character varying) OWNER TO postgres;
 
 --
--- TOC entry 311 (class 1255 OID 90466)
+-- TOC entry 318 (class 1255 OID 90468)
+-- Name: get_detalle_pdf_mng(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
+--
+
+CREATE FUNCTION dielab.get_detalle_pdf_mng(cod_ensayox character varying) RETURNS SETOF record
+    LANGUAGE plpgsql
+    AS $_$
+declare
+
+myrec			record;
+begin
+
+for myrec in select case when num_fila is null then '--' else num_fila end as row_number,
+case when num_serie is null then '--' else num_serie end as num_serie,
+case when marca is null then '--' else marca end as marca,
+case when largo is null then '--' else largo end as largo,
+case when usado is null then '--' else initcap(usado) end as usado,
+case when cod_clase is null then '--' else cod_clase end as cod_clase,
+case when tension_ensayo is null then '--' else tension_ensayo end as tension_ensayo,
+case when parches is null then '--' else parches end as parches,
+case when promed_fuga is null then '--' else promed_fuga end as promed_fuga,
+case when fuga_max is null then '--' else fuga_max end as fuga_max,
+case when aprobado is null then '--' else aprobado end as aprobado
+from
+	(select generate_series(1,12)::text as correlativo) as a
+	LEFT JOIN
+	(select 
+	row_number() over (order by num_serie)::text as num_fila, num_serie, marca, largo::text, cod_clase, tension_ensayo,
+	case when parches ~ '^[0-9\.]+$' then case when parches::numeric > 0 then parches else '--' end else '--' end as parches, 
+	case when aprobado = 'RECHAZADO' then 'Falla' else case when i_fuga_1 ~ '^[0-9\.]+$' then to_char(i_fuga_1::numeric, 'FM999.00') else '--' end end as promed_fuga, 
+	to_char(corriente_fuga_max, 'FM9.00') as fuga_max, aprobado, estado_uso.nombre_estado::text as usado
+	from dielab.lista_det_guante
+	join dielab.epps on num_serie = serie_epp
+	join dielab.encabezado_ensayo using (id_batea)
+	join dielab.estado_uso on epps.estado_uso = estado_uso.id
+	join dielab.tipo_manguilla on tipo_epp = id_tipo
+	join dielab.clase_tipo on tipo_manguilla.clase = clase_tipo.id_clase
+	where cod_ensayo = cod_ensayoX) as b
+	on a.correlativo = b.num_fila loop
+		return next myrec;
+end loop;
+
+return;
+end;
+
+$_$;
+
+
+ALTER FUNCTION dielab.get_detalle_pdf_mng(cod_ensayox character varying) OWNER TO postgres;
+
+--
+-- TOC entry 312 (class 1255 OID 90466)
 -- Name: get_detalle_pdf_mnt(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -768,7 +861,116 @@ $_$;
 ALTER FUNCTION dielab.get_detalle_pdf_mnt(cod_ensayox character varying) OWNER TO postgres;
 
 --
--- TOC entry 290 (class 1255 OID 16492)
+-- TOC entry 320 (class 1255 OID 90470)
+-- Name: get_detalle_pdf_prt(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
+--
+
+CREATE FUNCTION dielab.get_detalle_pdf_prt(cod_ensayox character varying) RETURNS SETOF record
+    LANGUAGE plpgsql
+    AS $_$
+declare
+
+myrec			record;
+begin
+
+for myrec in select case when num_fila is null then '--' else num_fila end as row_number,
+case when num_serie is null then '--' else num_serie end as num_serie,
+case when marca is null then '--' else marca end as marca,
+case when largo is null then '--' else largo end as largo,
+case when usado is null then '--' else initcap(usado) end as usado,
+case when cod_clase is null then '--' else cod_clase end as cod_clase,
+case when tension_ensayo is null then '--' else tension_ensayo end as tension_ensayo,
+case when parches is null then '--' else parches end as parches,
+case when promed_fuga is null then '--' else promed_fuga end as promed_fuga,
+case when fuga_max is null then '--' else fuga_max end as fuga_max,
+case when aprobado is null then '--' else aprobado end as aprobado
+from
+	(select generate_series(1,12)::text as correlativo) as a
+	LEFT JOIN
+	(select 
+row_number() over (order by num_serie)::text as num_fila, num_serie, marca, select_largo_pertiga.nombre::text as largo, cod_clase, tension_ensayo,
+case when parches ~ '^[0-9\.]+$' then case when parches::numeric > 0 then parches else '--' end else '--' end as parches, 
+case when aprobado = 'RECHAZADO' then 'Falla' else case when i_fuga_1 ~ '^[0-9\.]+$' then to_char(i_fuga_1::numeric, 'FM999.00') else '--' end end as promed_fuga, 
+to_char(corriente_fuga_max, 'FM9.00') as fuga_max, aprobado, estado_uso.nombre_estado::text as usado
+from dielab.lista_det_guante
+join dielab.epps on num_serie = serie_epp
+join dielab.encabezado_ensayo using (id_batea)
+join dielab.estado_uso on epps.estado_uso = estado_uso.id
+join dielab.tipo_pertiga on tipo_epp = id_tipo
+join dielab.select_largo_pertiga on tipo_pertiga.largo = select_largo_pertiga.id
+join dielab.clase_tipo on tipo_pertiga.clase = clase_tipo.id_clase
+where cod_ensayo = cod_ensayoX) as b
+	on a.correlativo = b.num_fila loop
+		return next myrec;
+end loop;
+
+return;
+end;
+
+$_$;
+
+
+ALTER FUNCTION dielab.get_detalle_pdf_prt(cod_ensayox character varying) OWNER TO postgres;
+
+--
+-- TOC entry 323 (class 1255 OID 90479)
+-- Name: get_edit_param(character varying, integer); Type: FUNCTION; Schema: dielab; Owner: postgres
+--
+
+CREATE FUNCTION dielab.get_edit_param(tablax character varying, id_paramx integer) RETURNS json
+    LANGUAGE plpgsql
+    AS $$
+declare
+
+myrec			record;
+linea			text;
+salida			json;
+begin
+salida := '{"error":false, "msg":"error 01"}'::json;
+if tablaX = 'tecnicos_ensayo' then
+	select nombre as tecnico_ensayo, 
+	case when comentario is null then ''::text else comentario end as comentario
+	into myrec
+	from dielab.tecnicos_ensayo where id_tecnico = id_paramX;
+	if found then
+		linea := '{"tecnico_ensayo":"' || myrec.tecnico_ensayo || '", "comentario":"' || myrec.comentario || '"}';
+		linea := '{"error":false, "datos":'  || linea  ||  '}';
+		salida = linea::json;
+	else
+		linea := '{"tecnico_ensayo":"", "comentario":""}';
+		linea := '{"error":false, "datos":'  || linea  ||  '}';
+		salida = linea::json;
+	end if;
+elseif tablaX = 'patron' then
+	select case when descripcion is null then ''::text else descripcion end as descripcion,
+	case when marca is null then ''::text else marca end as nombre_marca,
+	case when modelo is null then ''::text else modelo end as modelo,
+	case when serie is null then ''::text else serie end as serie,
+	mes_calibracion, periodo_calibracion into myrec from dielab.patron 
+	where id_patron = id_paramX;
+	if found then
+		linea = '{"descripcion":"' || myrec.descripcion || '", "nombre_marca":"' || myrec.nombre_marca || '", "modelo":"' || myrec.modelo || '", "serie":"' || myrec.serie || '", "mes_calibracion":"' || myrec.mes_calibracion || '", "periodo_calibracion":"' || myrec.periodo_calibracion || '"}';
+		linea := '{"error":false, "datos":'  || linea  ||  '}';
+		salida = linea::json;
+	else
+		linea := '{}';
+		linea := '{"error":false, "datos":'  || linea  ||  '}';
+		salida = linea::json;	
+	end if;
+else
+
+end if;
+return salida;
+
+end;
+
+$$;
+
+
+ALTER FUNCTION dielab.get_edit_param(tablax character varying, id_paramx integer) OWNER TO postgres;
+
+--
+-- TOC entry 291 (class 1255 OID 16492)
 -- Name: ingresa_cliente(text, character varying, character varying, character varying, character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -803,7 +1005,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_cliente(nombre text, nombre_corto character varying, representante character varying, telefono character varying, direccion character varying) OWNER TO postgres;
 
 --
--- TOC entry 315 (class 1255 OID 74000)
+-- TOC entry 309 (class 1255 OID 74000)
 -- Name: ingresa_det_tipo_epp(text, json); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -861,6 +1063,13 @@ if datojson->'largo' is not null then
 		sql_text := 'largo';
 	else
 		sql_text := sql_text || ',' || 'largo';
+	end if;
+end if;
+if datojson->'descripcion' is not null then
+	if sql_text = '' then
+		sql_text := 'descripcion';
+	else
+		sql_text := sql_text || ',' || 'descripcion';
 	end if;
 end if;
 raise notice 'sql_text(1): %',sql_text;
@@ -952,6 +1161,9 @@ raise notice 'sql_text(5): %',sql_text;
 if datojson->'largo' is not null then
 	sql_text := sql_text || ',' || (datojson->>'largo')::text;
 end if;
+if datojson->'descripcion' is not null then
+	sql_text := sql_text || ',' || '''' || (datojson->>'descripcion')::text || '''';
+end if;
 raise notice 'sql_text(6): %',sql_text;
 if datojson->'clase' is not null then
 	sql_text := sql_text || ',' || (datojson->>'clase')::text;
@@ -1013,7 +1225,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_det_tipo_epp(tabla_tipo_in text, datojson json) OWNER TO postgres;
 
 --
--- TOC entry 306 (class 1255 OID 24785)
+-- TOC entry 307 (class 1255 OID 24785)
 -- Name: ingresa_detalle(bigint, json); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1080,7 +1292,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_detalle(id_batea_in bigint, datojson json) OWNER TO postgres;
 
 --
--- TOC entry 277 (class 1255 OID 24780)
+-- TOC entry 278 (class 1255 OID 24780)
 -- Name: ingresa_detalle_borrar(json); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1112,7 +1324,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_detalle_borrar(datojson json) OWNER TO postgres;
 
 --
--- TOC entry 298 (class 1255 OID 24777)
+-- TOC entry 299 (class 1255 OID 24777)
 -- Name: ingresa_detalle_borrar(bigint, character varying, character varying, json); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1140,7 +1352,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_detalle_borrar(id_batea bigint, serie_epp character varying, estado_aprobacion character varying, detalle json) OWNER TO postgres;
 
 --
--- TOC entry 302 (class 1255 OID 57672)
+-- TOC entry 303 (class 1255 OID 57672)
 -- Name: ingresa_enc_ensayo(character varying, integer, character varying, integer, numeric, numeric, integer, integer, character varying, character varying, integer, integer); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1208,7 +1420,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_enc_ensayo(cod_ensayox character varying, clientex integer, sucursalx character varying, negociox integer, temperaturax numeric, humedadx numeric, tecnicox integer, patronx integer, fecha_ejecucionx character varying, fecha_ingresox character varying, valor_estadox integer, tipo_ensayox integer) OWNER TO postgres;
 
 --
--- TOC entry 308 (class 1255 OID 74037)
+-- TOC entry 310 (class 1255 OID 74037)
 -- Name: ingresa_enc_ensayo(character varying, integer, character varying, integer, numeric, numeric, integer, integer, character varying, character varying, integer, integer, text); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1276,7 +1488,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_enc_ensayo(cod_ensayox character varying, clientex integer, sucursalx character varying, negociox integer, temperaturax numeric, humedadx numeric, tecnicox integer, patronx integer, fecha_ejecucionx character varying, fecha_ingresox character varying, valor_estadox integer, tipo_ensayox integer, orden_comprax text) OWNER TO postgres;
 
 --
--- TOC entry 301 (class 1255 OID 16495)
+-- TOC entry 302 (class 1255 OID 16495)
 -- Name: ingresa_enc_ensayo_borrar(character varying, integer, character varying, integer, numeric, numeric, integer, integer, date, date); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1332,7 +1544,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_enc_ensayo_borrar(cod_ensayo character varying, clientex integer, sucursalx character varying, negociox integer, temperatura numeric, humedad numeric, tecnico integer, patron integer, fecha_ejecucion date, fecha_ingreso date) OWNER TO postgres;
 
 --
--- TOC entry 299 (class 1255 OID 16494)
+-- TOC entry 300 (class 1255 OID 16494)
 -- Name: ingresa_enc_ensayo_borrar(character varying, integer, character varying, integer, numeric, numeric, integer, integer, character varying, character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1386,7 +1598,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_enc_ensayo_borrar(cod_ensayo character varying, clientex integer, sucursalx character varying, negociox integer, temperatura numeric, humedad numeric, tecnico integer, patron integer, fecha_ejecucion character varying, fecha_ingreso character varying) OWNER TO postgres;
 
 --
--- TOC entry 304 (class 1255 OID 24847)
+-- TOC entry 305 (class 1255 OID 24847)
 -- Name: ingresa_enc_ensayo_borrar(character varying, integer, character varying, integer, numeric, numeric, integer, integer, character varying, character varying, integer); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1454,7 +1666,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_enc_ensayo_borrar(cod_ensayox character varying, clientex integer, sucursalx character varying, negociox integer, temperaturax numeric, humedadx numeric, tecnicox integer, patronx integer, fecha_ejecucionx character varying, fecha_ingresox character varying, valor_estadox integer) OWNER TO postgres;
 
 --
--- TOC entry 307 (class 1255 OID 24840)
+-- TOC entry 308 (class 1255 OID 24840)
 -- Name: ingresa_epp(character varying, integer, integer, character varying, integer, integer, character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1510,7 +1722,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_epp(cod_epp character varying, tipo integer, clientex integer, sucursalx character varying, negociox integer, valor_estado integer, tipo_epp character varying) OWNER TO postgres;
 
 --
--- TOC entry 313 (class 1255 OID 57671)
+-- TOC entry 315 (class 1255 OID 57671)
 -- Name: ingresa_epp(character varying, integer, integer, character varying, integer, integer, character varying, integer, integer); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1566,7 +1778,7 @@ $$;
 ALTER FUNCTION dielab.ingresa_epp(cod_epp character varying, tipo integer, clientex integer, sucursalx character varying, negociox integer, valor_estado integer, tipo_epp character varying, periodicidadx integer, estado_usox integer) OWNER TO postgres;
 
 --
--- TOC entry 296 (class 1255 OID 24852)
+-- TOC entry 298 (class 1255 OID 24852)
 -- Name: obtiene_emision(character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1596,7 +1808,7 @@ $$;
 ALTER FUNCTION dielab.obtiene_emision(cod_ensayox character varying) OWNER TO postgres;
 
 --
--- TOC entry 278 (class 1255 OID 41275)
+-- TOC entry 279 (class 1255 OID 41275)
 -- Name: test_record(); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1621,7 +1833,101 @@ $$;
 ALTER FUNCTION dielab.test_record() OWNER TO postgres;
 
 --
--- TOC entry 312 (class 1255 OID 33122)
+-- TOC entry 324 (class 1255 OID 90487)
+-- Name: update_det_tipo_epp(text, json, integer); Type: FUNCTION; Schema: dielab; Owner: postgres
+--
+
+CREATE FUNCTION dielab.update_det_tipo_epp(tabla_tipo_in text, datojson json, id_parametrox integer) RETURNS json
+    LANGUAGE plpgsql
+    AS $$
+declare
+
+myrec			record;
+resultado		record;
+salida        	json;
+otro			json;
+id_detalle_auto	bigint;
+serie_bigint	bigint;
+sql_text		text;
+id_tipo_in		integer;
+begin
+raise notice 'inicio ';
+id_tipo_in := 1;
+raise notice 'inicio 2';
+if tabla_tipo_in = 'patron' then
+
+	select * into myrec from dielab.patron where id_patron = id_parametroX;
+	if found then
+		-- actualiza
+		select * into resultado from dielab.patron where marca::text = (datojson->>'nombre_marca')::text
+		and modelo = (datojson->>'modelo')::text and serie = (datojson->>'serie')::text;
+		if found then
+		-- chequear si es la misma id
+			if id_parametroX = resultado.id_patron then
+				-- es el mismo, actualizar
+				update dielab.patron set descripcion = (datojson->>'descripcion')::text, 
+				mes_calibracion = (datojson->>'mes_calibracion')::integer,
+				periodo_calibracion = (datojson->>'periodo_calibracion')::integer
+				where id_patron = id_parametroX;
+				salida = '{"error":false, "msg":"Ingreso correcto"}';
+			else
+			-- es otro id, error, no puede ingresar 2 veces la misma marca, modelo, serie
+				salida = '{"error":true, "msg":"Marca, modelo y serie está repetido"}';
+			end if;
+		else
+		-- no existe la marca, modelo, serie, actualizar todos los datos
+				update dielab.patron set descripcion = (datojson->>'descripcion')::text,
+				marca = (datojson->>'nombre_marca')::text,
+				modelo = (datojson->>'modelo')::text,
+				serie = (datojson->>'serie')::text,
+				mes_calibracion = (datojson->>'mes_calibracion')::integer,
+				periodo_calibracion = (datojson->>'periodo_calibracion')::integer
+				where id_patron = id_parametroX;
+				salida = '{"error":false, "msg":"Ingreso correcto"}';
+		end if;
+	else
+		salida = '{"error":true, "msg":"No existe el ID para el patron"}';
+	end if;
+elseif tabla_tipo_in = 'tecnicos_ensayo' then
+	select * into myrec from dielab.tecnicos_ensayo where id_tecnico = id_parametroX;
+	if found then
+		select into resultado from dielab.tecnicos_ensayo where nombre = (datojson->>'tecnico_ensayo')::text;
+		if found then
+			if id_parametroX = resultado.id_tecnico then
+				--- es el mismo tecnico
+				update dielab.tecnicos_ensayo set comentario = (datojson->>'comentario')::text
+				where id_tecnico = id_parametroX;
+				salida = '{"error":false, "msg":"Ingreso correcto"}';
+			else
+				salida = '{"error":true, "msg":"El nombre de técnico ya existe ne la base"}';
+			end if;
+		else
+			update dielab.tecnicos_ensayo set comentario = (datojson->>'comentario')::text,
+			nombre = (datojson->>'tecnico_ensayo')::text
+			where id_tecnico = id_parametroX;
+			salida = '{"error":false, "msg":"Ingreso correcto"}';
+		end if;
+	else
+		salida = '{"error":true, "msg":"No existe el ID para el tecnico"}';
+	end if;
+	
+else 
+	salida = '{"error":true, "msg":"Parametro aún no implementado"}';
+end if;
+
+return salida;
+
+		
+return salida;
+end;
+
+$$;
+
+
+ALTER FUNCTION dielab.update_det_tipo_epp(tabla_tipo_in text, datojson json, id_parametrox integer) OWNER TO postgres;
+
+--
+-- TOC entry 314 (class 1255 OID 33122)
 -- Name: valida_usuario(character varying, character varying); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1698,18 +2004,23 @@ salida			json;
 begin
 	select * into resultado from dielab.epps where serie_epp = epp;
 	if found then
-		if resultado.clase_epp = 1 then
-		--guante, buscar corriente de fuga
-			select corriente_fuga_max::text as fuga into resultado from dielab.epps join dielab.tipo_guante
-			on tipo_epp = id_tipo where serie_epp = epp;
-			if found then
-				salida = '{"error":false, "msg":"' || resultado.fuga || '"}';
-			else
-				salida = '{"error":true, "msg":"No se encuentra el tipo de guante"}';
-			end if;		
+		if resultado.estado_epp = 3 then
+		-- fue dado de baja
+			salida = '{"error":true, "msg":"El elemento fue dado de baja"}';
 		else
-		-- no es guante, no busca corriente de fuga
-			salida = '{"error":false, "msg":"0"}';
+			if resultado.clase_epp = 1 then
+			--guante, buscar corriente de fuga
+				select corriente_fuga_max::text as fuga into resultado from dielab.epps join dielab.tipo_guante
+				on tipo_epp = id_tipo where serie_epp = epp;
+				if found then
+					salida = '{"error":false, "msg":"' || resultado.fuga || '"}';
+				else
+					salida = '{"error":true, "msg":"No se encuentra el tipo de guante"}';
+				end if;		
+			else
+			-- no es guante, no busca corriente de fuga
+				salida = '{"error":false, "msg":"0"}';
+			end if;
 		end if;
 	else
 		salida = '{"error":true, "msg":"No existe el elemento"}';
@@ -1724,7 +2035,7 @@ $$;
 ALTER FUNCTION dielab.verifica_epp_guante(epp character varying) OWNER TO postgres;
 
 --
--- TOC entry 309 (class 1255 OID 24850)
+-- TOC entry 311 (class 1255 OID 24850)
 -- Name: verifica_epp_guante(character varying, bigint); Type: FUNCTION; Schema: dielab; Owner: postgres
 --
 
@@ -1819,14 +2130,15 @@ CREATE TABLE dielab.clase_epp (
     tabla_detalle character varying NOT NULL,
     nombre_menu character varying,
     habilitado boolean DEFAULT false,
-    tipo_ensayo bigint NOT NULL
+    tipo_ensayo bigint NOT NULL,
+    prioridad integer
 );
 
 
 ALTER TABLE dielab.clase_epp OWNER TO postgres;
 
 --
--- TOC entry 3599 (class 0 OID 0)
+-- TOC entry 3611 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: TABLE clase_epp; Type: COMMENT; Schema: dielab; Owner: postgres
 --
@@ -1849,7 +2161,7 @@ CREATE TABLE dielab.clase_tipo (
 ALTER TABLE dielab.clase_tipo OWNER TO postgres;
 
 --
--- TOC entry 3600 (class 0 OID 0)
+-- TOC entry 3612 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: TABLE clase_tipo; Type: COMMENT; Schema: dielab; Owner: postgres
 --
@@ -2179,6 +2491,30 @@ CREATE VIEW dielab.lista_ensayos AS
 ALTER TABLE dielab.lista_ensayos OWNER TO postgres;
 
 --
+-- TOC entry 277 (class 1259 OID 90488)
+-- Name: lista_ensayos_x_epp; Type: VIEW; Schema: dielab; Owner: postgres
+--
+
+CREATE VIEW dielab.lista_ensayos_x_epp AS
+ SELECT lista_ensayos.id,
+    lista_ensayos.codigo,
+    lista_ensayos.fecha_ingreso,
+    lista_ensayos.cliente,
+    lista_ensayos.negocio,
+    lista_ensayos.estado,
+    lista_ensayos.tipo_ensayo,
+    a.serie_epp
+   FROM (dielab.lista_ensayos
+     JOIN ( SELECT encabezado_ensayo.cod_ensayo,
+            epps.serie_epp
+           FROM ((dielab.detalle_ensayo
+             JOIN dielab.epps ON ((detalle_ensayo.serie_epp = epps.id_epp)))
+             JOIN dielab.encabezado_ensayo USING (id_batea))) a ON (((lista_ensayos.codigo)::text = (a.cod_ensayo)::text)));
+
+
+ALTER TABLE dielab.lista_ensayos_x_epp OWNER TO postgres;
+
+--
 -- TOC entry 230 (class 1259 OID 24835)
 -- Name: lista_epps; Type: VIEW; Schema: dielab; Owner: postgres
 --
@@ -2233,7 +2569,7 @@ CREATE VIEW dielab.lista_form_ensayo AS
 ALTER TABLE dielab.lista_form_ensayo OWNER TO postgres;
 
 --
--- TOC entry 276 (class 1259 OID 90461)
+-- TOC entry 275 (class 1259 OID 90461)
 -- Name: lista_form_epps; Type: VIEW; Schema: dielab; Owner: postgres
 --
 
@@ -2452,7 +2788,7 @@ CREATE VIEW dielab.select_clase_ensayo AS
    FROM (dielab.ensayos_tipo
      JOIN dielab.clase_epp ON ((ensayos_tipo.id_ensayo_tipo = clase_epp.tipo_ensayo)))
   WHERE (ensayos_tipo.habilitado AND clase_epp.habilitado)
-  ORDER BY ensayos_tipo.id_ensayo_tipo;
+  ORDER BY clase_epp.prioridad;
 
 
 ALTER TABLE dielab.select_clase_ensayo OWNER TO postgres;
@@ -2471,7 +2807,7 @@ CREATE VIEW dielab.select_clase_epp AS
     clase_epp.habilitado
    FROM dielab.clase_epp
   WHERE clase_epp.habilitado
-  ORDER BY clase_epp.id_clase_epp
+  ORDER BY clase_epp.prioridad
   WITH LOCAL CHECK OPTION;
 
 
@@ -2672,14 +3008,18 @@ CREATE VIEW dielab.select_num_cuerpos_aterramiento AS
 ALTER TABLE dielab.select_num_cuerpos_aterramiento OWNER TO postgres;
 
 --
--- TOC entry 273 (class 1259 OID 90431)
+-- TOC entry 276 (class 1259 OID 90472)
 -- Name: select_patron; Type: VIEW; Schema: dielab; Owner: postgres
 --
 
 CREATE VIEW dielab.select_patron AS
  SELECT patron.id_patron AS id,
-    ((patron.descripcion || '/'::text) || (patron.marca)::text) AS nombre,
+        CASE
+            WHEN ((patron.descripcion IS NULL) OR (patron.descripcion = ''::text)) THEN (patron.marca)::text
+            ELSE ((patron.descripcion || '/'::text) || (patron.marca)::text)
+        END AS nombre,
     patron.id_patron AS num,
+    patron.descripcion,
     patron.marca AS nombre_marca,
     patron.modelo,
     patron.serie,
@@ -2760,7 +3100,7 @@ CREATE VIEW dielab.select_tecnico AS
 ALTER TABLE dielab.select_tecnico OWNER TO postgres;
 
 --
--- TOC entry 274 (class 1259 OID 90447)
+-- TOC entry 273 (class 1259 OID 90447)
 -- Name: select_tecnicos_ensayo; Type: VIEW; Schema: dielab; Owner: postgres
 --
 
@@ -3119,7 +3459,7 @@ CREATE TABLE dielab.usuarios (
 ALTER TABLE dielab.usuarios OWNER TO postgres;
 
 --
--- TOC entry 275 (class 1259 OID 90455)
+-- TOC entry 274 (class 1259 OID 90455)
 -- Name: resultado1; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -3135,7 +3475,7 @@ CREATE TABLE public.resultado1 (
 ALTER TABLE public.resultado1 OWNER TO postgres;
 
 --
--- TOC entry 3592 (class 0 OID 82299)
+-- TOC entry 3604 (class 0 OID 82299)
 -- Dependencies: 270
 -- Data for Name: anual; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -3154,26 +3494,26 @@ COPY dielab.anual (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3568 (class 0 OID 24713)
+-- TOC entry 3580 (class 0 OID 24713)
 -- Dependencies: 220
 -- Data for Name: clase_epp; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
 
-COPY dielab.clase_epp (id_clase_epp, nombre, cod_serie, tabla_detalle, nombre_menu, habilitado, tipo_ensayo) FROM stdin;
-1	guante	GNT	tipo_guante	Guantes	t	1
-2	manguilla	MNG	tipo_manguilla	Manguillas	t	4
-3	manta	MNT	tipo_manta	Mantas	t	5
-4	cubrelinea	CBL	tipo_cubrelinea	Cubrelineas	t	3
-5	banqueta	BNQ	tipo_banqueta	Banquetas	t	6
-6	loadbuster	LDB	tipo_loadbuster	LoadBuster	t	2
-7	aterramiento	ATR	tipo_aterramiento	Aterramiento	t	7
-8	pertiga	PRT	tipo_pertiga	Pértiga	t	8
-9	jumper	JMP	tipo_jumper	Jumper	f	9
+COPY dielab.clase_epp (id_clase_epp, nombre, cod_serie, tabla_detalle, nombre_menu, habilitado, tipo_ensayo, prioridad) FROM stdin;
+9	jumper	JMP	tipo_jumper	Jumper	f	9	\N
+1	guante	GNT	tipo_guante	Guantes	t	1	1
+2	manguilla	MNG	tipo_manguilla	Manguillas	t	4	2
+3	manta	MNT	tipo_manta	Mantas	t	5	7
+4	cubrelinea	CBL	tipo_cubrelinea	Cubrelineas	t	3	6
+5	banqueta	BNQ	tipo_banqueta	Banquetas	t	6	8
+6	loadbuster	LDB	tipo_loadbuster	LoadBuster	t	2	5
+7	aterramiento	ATR	tipo_aterramiento	Aterramiento	t	7	3
+8	pertiga	PRT	tipo_pertiga	Pértiga	t	8	4
 \.
 
 
 --
--- TOC entry 3570 (class 0 OID 24737)
+-- TOC entry 3582 (class 0 OID 24737)
 -- Dependencies: 222
 -- Data for Name: clase_tipo; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -3191,7 +3531,7 @@ COPY dielab.clase_tipo (cod_clase, descripcion, id_clase) FROM stdin;
 
 
 --
--- TOC entry 3556 (class 0 OID 16404)
+-- TOC entry 3568 (class 0 OID 16404)
 -- Dependencies: 201
 -- Data for Name: cliente; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -3209,7 +3549,7 @@ COPY dielab.cliente (id_cliente, nombre, telefono, representante, direccion, nom
 
 
 --
--- TOC entry 3562 (class 0 OID 16457)
+-- TOC entry 3574 (class 0 OID 16457)
 -- Dependencies: 208
 -- Data for Name: cliente_negocio_sucursal; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10159,7 +10499,7 @@ COPY dielab.cliente_negocio_sucursal (id_cliente_n_s, cliente, negocio, sucursal
 
 
 --
--- TOC entry 3586 (class 0 OID 65904)
+-- TOC entry 3598 (class 0 OID 65904)
 -- Dependencies: 248
 -- Data for Name: cuerpos_aterramiento; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10170,7 +10510,7 @@ COPY dielab.cuerpos_aterramiento (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3567 (class 0 OID 24703)
+-- TOC entry 3579 (class 0 OID 24703)
 -- Dependencies: 219
 -- Data for Name: detalle_ensayo; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10203,16 +10543,22 @@ COPY dielab.detalle_ensayo (id_detalle, id_batea, serie_epp, aprobado, detalle) 
 8084	8079	8055	t	{"serie_epp":"GNT-00689","fuga1":"1","fuga2":"2","fuga3":"3","parches":"1","promedio":"2.00","tension":"10","resultado":"APROBADO"}
 8087	8086	8037	t	{"serie_epp":"GNT-00684","fuga1":"2","fuga2":"2","fuga3":"3","parches":"1","promedio":"2.33","tension":"10","resultado":"APROBADO"}
 8088	8086	8038	f	{"serie_epp":"GNT-00685","fuga1":"--","fuga2":"--","fuga3":"--","parches":"--","promedio":"--","tension":"--","resultado":"RECHAZADO"}
-8112	8106	8095	t	{"serie_epp":"MNG-00003","fuga1":"1","fuga2":"1","fuga3":"1","parches":"1","promedio":"1.00","tension":"10","resultado":"APROBADO"}
-8113	8106	8096	t	{"serie_epp":"MNG-00004","fuga1":"2","fuga2":"2","fuga3":"2","parches":"0","promedio":"2.00","tension":"10","resultado":"APROBADO"}
 8126	8122	8123	t	{"serie_epp":"BNQ-00001","fuga1":"5","parches":"0","tension":"10","resultado":"APROBADO"}
 8127	8117	8119	t	{"serie_epp":"MNT-00002","fuga1":"3","parches":"1","tension":"12","resultado":"APROBADO"}
 8128	8116	8053	f	{"serie_epp":"GNT-00687","fuga1":"5","parches":"0","tension":"10","resultado":"RECHAZADO"}
+8132	8129	8131	t	{"serie_epp":"ATR-00003","fuga1":"5","parches":"0","tension":"10","resultado":"APROBADO"}
+8133	8129	8130	f	{"serie_epp":"ATR-00002","fuga1":"--","parches":"--","tension":"--","resultado":"RECHAZADO"}
+8134	8129	8089	t	{"serie_epp":"ATR-00001","fuga1":"5","parches":"0","tension":"10","resultado":"APROBADO"}
+8136	8106	8092	t	{"serie_epp":"MNG-00002","fuga1":"23","parches":"0","tension":"10","resultado":"APROBADO"}
+8137	8106	8095	t	{"serie_epp":"MNG-00003","fuga1":"34","parches":"0","tension":"10","resultado":"APROBADO"}
+8142	8141	8140	t	{"serie_epp":"PRT-00003","fuga1":"57","parches":"0","tension":"12","resultado":"APROBADO"}
+8143	8141	8139	t	{"serie_epp":"PRT-00002","fuga1":"112","parches":"0","tension":"12","resultado":"APROBADO"}
+8144	8141	8138	t	{"serie_epp":"PRT-00001","fuga1":"123","parches":"0","tension":"12","resultado":"APROBADO"}
 \.
 
 
 --
--- TOC entry 3564 (class 0 OID 16474)
+-- TOC entry 3576 (class 0 OID 16474)
 -- Dependencies: 210
 -- Data for Name: encabezado_ensayo; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10255,15 +10601,18 @@ COPY dielab.encabezado_ensayo (id_batea, cod_ensayo, temperatura, humedad, tecni
 8079	LAT-GNT-00152	15	20	3	2022-07-06 12:12:08.845749	2	ingreso	1	2022-07-06	2022-07-06	7915	2022-07-06	3	2	OC-8079
 7963	LAT-GNT-123	35	30	2	2022-06-22 19:54:08.269306	1	ingreso	1	\N	\N	2656	\N	1	1	OC-7963
 7964	LAT-GNT-124	35	30	2	2022-06-22 19:54:10.524559	1	ingreso	1	\N	\N	2656	\N	1	1	OC-7964
-8106	LAT-MNG-00003	23	23	1	2022-07-08 20:21:39.983645	1	ingreso	4	2022-07-08	\N	6282	2022-07-08	2	1	OC-8106
 8122	LAT-BNQ-00001	20	20	2	2022-07-20 20:59:20.153973	2	ingreso	6	2022-07-22	\N	1582	2022-07-22	2	2	OC-345
 8117	LAT-MNT-00001	21	21	1	2022-07-15 19:08:18.056931	1	ingreso	5	2022-07-15	\N	7917	2022-07-15	2	1	oc-432
 8116	LAT-GNT-00158	21	21	2	2022-07-13 21:19:52.595001	1	ingreso	1	2022-07-13	\N	6296	2022-07-13	2	1	OC-345
+8129	LAT-ATR-00001	20	20	5	2022-07-23 22:19:37.967433	1	ingreso	7	2022-07-15	\N	1042	2022-07-15	2	1	OC-3687
+8106	LAT-MNG-00003	23	23	1	2022-07-08 20:21:39.983645	1	ingreso	4	2022-07-08	\N	6282	2022-07-08	2	1	OC-8106
+8141	LAT-PRT-00001	21	21	5	2022-07-24 00:23:09.500848	2	ingreso	8	2022-07-16	\N	1057	2022-07-16	2	2	OC-1245
+8145	LAT-GNT-00159	21	11	7	2022-07-24 21:46:30.119373	1	ingreso	1	2022-07-22	\N	4977	2022-07-22	1	1	45678
 \.
 
 
 --
--- TOC entry 3566 (class 0 OID 24695)
+-- TOC entry 3578 (class 0 OID 24695)
 -- Dependencies: 218
 -- Data for Name: ensayos_tipo; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10273,16 +10622,16 @@ COPY dielab.ensayos_tipo (id_ensayo_tipo, descripcion, cod_informe, habilitado) 
 4	manguillas	LAT-MNG	t
 9	jumper	LAT-JMP	f
 5	mantas	LAT-MNT	t
-2	loadbuster	LAT-LDB	t
-3	cubre_línea	LAT-CBL	t
-6	banqueta	LAT-BNQ	t
 7	aterramiento	LAT-ATR	t
 8	pértiga	LAT-PRT	t
+2	loadbuster	LAT-LDB	f
+3	cubre_línea	LAT-CBL	f
+6	banqueta	LAT-BNQ	f
 \.
 
 
 --
--- TOC entry 3574 (class 0 OID 24824)
+-- TOC entry 3586 (class 0 OID 24824)
 -- Dependencies: 229
 -- Data for Name: epps; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10295,6 +10644,14 @@ COPY dielab.epps (id_epp, serie_epp, clase_epp, tipo_epp, cliente_n_s, estado_ep
 8123	BNQ-00001	5	1	4157	1	6	2
 8119	MNT-00002	3	3	6857	1	10	2
 8053	GNT-00687	1	6	7917	1	6	2
+8131	ATR-00003	7	1	1042	1	6	2
+8130	ATR-00002	7	1	1042	1	6	2
+8089	ATR-00001	7	2	5625	1	6	2
+8092	MNG-00002	2	4	4897	1	6	2
+8095	MNG-00003	2	1	4882	1	6	2
+8140	PRT-00003	8	1	1042	1	6	2
+8139	PRT-00002	8	1	1042	1	6	2
+8138	PRT-00001	8	1	1042	1	6	2
 7991	GNT-00678	1	6	4892	0	6	2
 7992	GNT-00679	1	1	1357	0	6	2
 7993	GNT-00680	1	3	7900	0	6	2
@@ -10310,11 +10667,8 @@ COPY dielab.epps (id_epp, serie_epp, clase_epp, tipo_epp, cliente_n_s, estado_ep
 8068	GNT-00691	1	2	1342	0	6	2
 8078	GNT-00692	1	2	3495	0	6	2
 8090	MNG-00001	2	4	4882	0	6	2
-8092	MNG-00002	2	4	4897	0	6	2
 8094	GNT-00696	1	1	4142	0	6	2
-8095	MNG-00003	2	1	4882	0	6	2
 8115	CBL-00001	4	1	1342	0	6	2
-8089	ATR-00001	7	2	5625	0	6	2
 8091	GNT-00694	1	5	6857	3	6	2
 8093	GNT-00695	1	1	4997	3	6	2
 8085	GNT-00693	1	6	1355	3	6	2
@@ -10322,7 +10676,7 @@ COPY dielab.epps (id_epp, serie_epp, clase_epp, tipo_epp, cliente_n_s, estado_ep
 
 
 --
--- TOC entry 3565 (class 0 OID 16541)
+-- TOC entry 3577 (class 0 OID 16541)
 -- Dependencies: 216
 -- Data for Name: estado_ensayo; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10336,7 +10690,7 @@ COPY dielab.estado_ensayo (id_estado, nombre, observacion) FROM stdin;
 
 
 --
--- TOC entry 3571 (class 0 OID 24753)
+-- TOC entry 3583 (class 0 OID 24753)
 -- Dependencies: 223
 -- Data for Name: estado_epp; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10350,7 +10704,7 @@ COPY dielab.estado_epp (id_estado_epp, descripcion) FROM stdin;
 
 
 --
--- TOC entry 3582 (class 0 OID 57633)
+-- TOC entry 3594 (class 0 OID 57633)
 -- Dependencies: 242
 -- Data for Name: estado_uso; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10362,7 +10716,7 @@ COPY dielab.estado_uso (id, nombre_estado) FROM stdin;
 
 
 --
--- TOC entry 3585 (class 0 OID 65830)
+-- TOC entry 3597 (class 0 OID 65830)
 -- Dependencies: 247
 -- Data for Name: largo_cubrelinea; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10374,7 +10728,7 @@ COPY dielab.largo_cubrelinea (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3573 (class 0 OID 24800)
+-- TOC entry 3585 (class 0 OID 24800)
 -- Dependencies: 225
 -- Data for Name: largo_guante; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10387,7 +10741,7 @@ COPY dielab.largo_guante (id_largo, valor) FROM stdin;
 
 
 --
--- TOC entry 3584 (class 0 OID 65809)
+-- TOC entry 3596 (class 0 OID 65809)
 -- Dependencies: 246
 -- Data for Name: largo_manta; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10399,7 +10753,7 @@ COPY dielab.largo_manta (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3589 (class 0 OID 65959)
+-- TOC entry 3601 (class 0 OID 65959)
 -- Dependencies: 251
 -- Data for Name: largo_pertiga; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10411,7 +10765,7 @@ COPY dielab.largo_pertiga (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3572 (class 0 OID 24792)
+-- TOC entry 3584 (class 0 OID 24792)
 -- Dependencies: 224
 -- Data for Name: marca; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10430,7 +10784,7 @@ COPY dielab.marca (id_marca, nombre) FROM stdin;
 
 
 --
--- TOC entry 3591 (class 0 OID 82291)
+-- TOC entry 3603 (class 0 OID 82291)
 -- Dependencies: 269
 -- Data for Name: meses; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10452,7 +10806,7 @@ COPY dielab.meses (id, nombre) FROM stdin;
 
 
 --
--- TOC entry 3560 (class 0 OID 16441)
+-- TOC entry 3572 (class 0 OID 16441)
 -- Dependencies: 206
 -- Data for Name: negocio; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10467,7 +10821,7 @@ COPY dielab.negocio (id_negocio, nombre) FROM stdin;
 
 
 --
--- TOC entry 3561 (class 0 OID 16449)
+-- TOC entry 3573 (class 0 OID 16449)
 -- Dependencies: 207
 -- Data for Name: patron; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10475,12 +10829,12 @@ COPY dielab.negocio (id_negocio, nombre) FROM stdin;
 COPY dielab.patron (id_patron, descripcion, marca, modelo, serie, calibracion, mes_calibracion, periodo_calibracion, activo) FROM stdin;
 1	Hipot AC	Huazheng	HZAQ	HZ181010900104-02	Noviembre 2022	11	1	t
 2	Hipot AC	Phoenix Technologies	BK 130/36	15-9968	Noviembre 2022	11	1	t
-3		Orion	HR0001	00009999	Diciembre 2023 	12	2	t
+3	patron01	Super	verde	00000	Noviembre 2023 	11	2	t
 \.
 
 
 --
--- TOC entry 3576 (class 0 OID 33058)
+-- TOC entry 3588 (class 0 OID 33058)
 -- Dependencies: 233
 -- Data for Name: perfil; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10493,7 +10847,7 @@ COPY dielab.perfil (id, nombre, multicliente, mantenedor, inventario, ensayo, re
 
 
 --
--- TOC entry 3583 (class 0 OID 57655)
+-- TOC entry 3595 (class 0 OID 57655)
 -- Dependencies: 243
 -- Data for Name: periodicidad; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10516,7 +10870,7 @@ COPY dielab.periodicidad (id, descripcion, meses) FROM stdin;
 
 
 --
--- TOC entry 3575 (class 0 OID 33048)
+-- TOC entry 3587 (class 0 OID 33048)
 -- Dependencies: 232
 -- Data for Name: personas; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10528,7 +10882,7 @@ COPY dielab.personas (rut, nombre, email, telefono, suspendida) FROM stdin;
 
 
 --
--- TOC entry 3557 (class 0 OID 16412)
+-- TOC entry 3569 (class 0 OID 16412)
 -- Dependencies: 202
 -- Data for Name: sucursales; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10885,7 +11239,7 @@ COPY dielab.sucursales (cod_sucursal, nombre) FROM stdin;
 
 
 --
--- TOC entry 3559 (class 0 OID 16433)
+-- TOC entry 3571 (class 0 OID 16433)
 -- Dependencies: 205
 -- Data for Name: tecnicos_ensayo; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10895,23 +11249,27 @@ COPY dielab.tecnicos_ensayo (id_tecnico, nombre, comentario, activo) FROM stdin;
 3	Tecnico 03	Tecnico sucursal 3 rut:333333	t
 4	Tecnico 04	Tecnico sucursal 4 rut:444444	t
 1	Tecnico 01	Tecnico sucursal 1 rut:11111	f
-5	Juan Soto	erwerwerw	t
+7	Juan Soto1	hola hola	t
+5	Miguel Tapia	jjjrree	t
+6	otro nuevo	comentario comentario	t
 \.
 
 
 --
--- TOC entry 3587 (class 0 OID 65914)
+-- TOC entry 3599 (class 0 OID 65914)
 -- Dependencies: 249
 -- Data for Name: tipo_aterramiento; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
 
 COPY dielab.tipo_aterramiento (id_tipo, marca, modelo, largo, clase, corriente_fuga_max, descripcion, cod_marca) FROM stdin;
 1	Hastings	\N	1	0	0	\N	5
+2	Ritz	\N	1	0	0	\N	6
+3	Coofeste	\N	1	0	0	\N	7
 \.
 
 
 --
--- TOC entry 3581 (class 0 OID 49485)
+-- TOC entry 3593 (class 0 OID 49485)
 -- Dependencies: 238
 -- Data for Name: tipo_banqueta; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10922,7 +11280,7 @@ COPY dielab.tipo_banqueta (id_tipo, marca, modelo, largo, clase, corriente_fuga_
 
 
 --
--- TOC entry 3579 (class 0 OID 49459)
+-- TOC entry 3591 (class 0 OID 49459)
 -- Dependencies: 236
 -- Data for Name: tipo_cubrelinea; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10933,7 +11291,7 @@ COPY dielab.tipo_cubrelinea (id_tipo, marca, modelo, largo, clase, corriente_fug
 
 
 --
--- TOC entry 3569 (class 0 OID 24729)
+-- TOC entry 3581 (class 0 OID 24729)
 -- Dependencies: 221
 -- Data for Name: tipo_guante; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10950,7 +11308,7 @@ COPY dielab.tipo_guante (id_tipo, marca, modelo, largo, clase, corriente_fuga_ma
 
 
 --
--- TOC entry 3588 (class 0 OID 65940)
+-- TOC entry 3600 (class 0 OID 65940)
 -- Dependencies: 250
 -- Data for Name: tipo_loadbuster; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10961,7 +11319,7 @@ COPY dielab.tipo_loadbuster (id_tipo, marca, modelo, largo, clase, corriente_fug
 
 
 --
--- TOC entry 3578 (class 0 OID 49438)
+-- TOC entry 3590 (class 0 OID 49438)
 -- Dependencies: 235
 -- Data for Name: tipo_manguilla; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10975,7 +11333,7 @@ COPY dielab.tipo_manguilla (id_tipo, marca, modelo, largo, clase, corriente_fuga
 
 
 --
--- TOC entry 3580 (class 0 OID 49472)
+-- TOC entry 3592 (class 0 OID 49472)
 -- Dependencies: 237
 -- Data for Name: tipo_manta; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -10989,7 +11347,7 @@ COPY dielab.tipo_manta (id_tipo, marca, modelo, largo, clase, corriente_fuga_max
 
 
 --
--- TOC entry 3590 (class 0 OID 65969)
+-- TOC entry 3602 (class 0 OID 65969)
 -- Dependencies: 252
 -- Data for Name: tipo_pertiga; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -11000,7 +11358,7 @@ COPY dielab.tipo_pertiga (id_tipo, marca, modelo, largo, clase, corriente_fuga_m
 
 
 --
--- TOC entry 3577 (class 0 OID 33093)
+-- TOC entry 3589 (class 0 OID 33093)
 -- Dependencies: 234
 -- Data for Name: usuarios; Type: TABLE DATA; Schema: dielab; Owner: postgres
 --
@@ -11012,8 +11370,8 @@ COPY dielab.usuarios (id, perfil, rut, password_md5, cliente, usuario, suspendid
 
 
 --
--- TOC entry 3593 (class 0 OID 90455)
--- Dependencies: 275
+-- TOC entry 3605 (class 0 OID 90455)
+-- Dependencies: 274
 -- Data for Name: resultado1; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -11050,7 +11408,7 @@ COPY public.resultado1 (id_detalle, id_batea, serie_epp, aprobado, detalle) FROM
 
 
 --
--- TOC entry 3601 (class 0 OID 0)
+-- TOC entry 3613 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: seq_cod_ensayo; Type: SEQUENCE SET; Schema: dielab; Owner: postgres
 --
@@ -11059,16 +11417,16 @@ SELECT pg_catalog.setval('dielab.seq_cod_ensayo', 145, true);
 
 
 --
--- TOC entry 3602 (class 0 OID 0)
+-- TOC entry 3614 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: seq_id_tabla; Type: SEQUENCE SET; Schema: dielab; Owner: postgres
 --
 
-SELECT pg_catalog.setval('dielab.seq_id_tabla', 8128, true);
+SELECT pg_catalog.setval('dielab.seq_id_tabla', 8145, true);
 
 
 --
--- TOC entry 3353 (class 2606 OID 82306)
+-- TOC entry 3364 (class 2606 OID 82306)
 -- Name: anual anual_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11077,7 +11435,7 @@ ALTER TABLE ONLY dielab.anual
 
 
 --
--- TOC entry 3335 (class 2606 OID 74012)
+-- TOC entry 3346 (class 2606 OID 74012)
 -- Name: tipo_aterramiento ate_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11086,7 +11444,7 @@ ALTER TABLE ONLY dielab.tipo_aterramiento
 
 
 --
--- TOC entry 3312 (class 2606 OID 74014)
+-- TOC entry 3323 (class 2606 OID 74014)
 -- Name: tipo_banqueta ban_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11095,7 +11453,7 @@ ALTER TABLE ONLY dielab.tipo_banqueta
 
 
 --
--- TOC entry 3260 (class 2606 OID 24712)
+-- TOC entry 3271 (class 2606 OID 24712)
 -- Name: detalle_ensayo batea_epp_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11104,7 +11462,7 @@ ALTER TABLE ONLY dielab.detalle_ensayo
 
 
 --
--- TOC entry 3264 (class 2606 OID 24720)
+-- TOC entry 3275 (class 2606 OID 24720)
 -- Name: clase_epp clase_epp_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11113,7 +11471,7 @@ ALTER TABLE ONLY dielab.clase_epp
 
 
 --
--- TOC entry 3275 (class 2606 OID 24818)
+-- TOC entry 3286 (class 2606 OID 24818)
 -- Name: clase_tipo clase_tipo_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11122,7 +11480,7 @@ ALTER TABLE ONLY dielab.clase_tipo
 
 
 --
--- TOC entry 3250 (class 2606 OID 16464)
+-- TOC entry 3261 (class 2606 OID 16464)
 -- Name: cliente_negocio_sucursal cliente-negocio-sucursal_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11131,7 +11489,7 @@ ALTER TABLE ONLY dielab.cliente_negocio_sucursal
 
 
 --
--- TOC entry 3238 (class 2606 OID 16411)
+-- TOC entry 3247 (class 2606 OID 16411)
 -- Name: cliente cliente_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11140,7 +11498,7 @@ ALTER TABLE ONLY dielab.cliente
 
 
 --
--- TOC entry 3252 (class 2606 OID 16497)
+-- TOC entry 3263 (class 2606 OID 16497)
 -- Name: encabezado_ensayo cod_ensayo_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11149,7 +11507,7 @@ ALTER TABLE ONLY dielab.encabezado_ensayo
 
 
 --
--- TOC entry 3303 (class 2606 OID 74016)
+-- TOC entry 3314 (class 2606 OID 74016)
 -- Name: tipo_cubrelinea cub_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11158,7 +11516,7 @@ ALTER TABLE ONLY dielab.tipo_cubrelinea
 
 
 --
--- TOC entry 3331 (class 2606 OID 65911)
+-- TOC entry 3342 (class 2606 OID 65911)
 -- Name: cuerpos_aterramiento cuerpos_aterramiento_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11167,7 +11525,7 @@ ALTER TABLE ONLY dielab.cuerpos_aterramiento
 
 
 --
--- TOC entry 3262 (class 2606 OID 24710)
+-- TOC entry 3273 (class 2606 OID 24710)
 -- Name: detalle_ensayo detalle_ensayo_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11176,7 +11534,7 @@ ALTER TABLE ONLY dielab.detalle_ensayo
 
 
 --
--- TOC entry 3288 (class 2606 OID 33057)
+-- TOC entry 3299 (class 2606 OID 33057)
 -- Name: personas email_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11185,7 +11543,7 @@ ALTER TABLE ONLY dielab.personas
 
 
 --
--- TOC entry 3254 (class 2606 OID 16481)
+-- TOC entry 3265 (class 2606 OID 16481)
 -- Name: encabezado_ensayo encabezado_ensayo_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11194,7 +11552,7 @@ ALTER TABLE ONLY dielab.encabezado_ensayo
 
 
 --
--- TOC entry 3258 (class 2606 OID 24702)
+-- TOC entry 3269 (class 2606 OID 24702)
 -- Name: ensayos_tipo ensayos_tipo_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11203,7 +11561,7 @@ ALTER TABLE ONLY dielab.ensayos_tipo
 
 
 --
--- TOC entry 3283 (class 2606 OID 24831)
+-- TOC entry 3294 (class 2606 OID 24831)
 -- Name: epps epps_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11212,7 +11570,7 @@ ALTER TABLE ONLY dielab.epps
 
 
 --
--- TOC entry 3256 (class 2606 OID 16548)
+-- TOC entry 3267 (class 2606 OID 16548)
 -- Name: estado_ensayo estado_ensayo_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11221,7 +11579,7 @@ ALTER TABLE ONLY dielab.estado_ensayo
 
 
 --
--- TOC entry 3277 (class 2606 OID 24760)
+-- TOC entry 3288 (class 2606 OID 24760)
 -- Name: estado_epp estado_epp_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11230,7 +11588,7 @@ ALTER TABLE ONLY dielab.estado_epp
 
 
 --
--- TOC entry 3317 (class 2606 OID 57642)
+-- TOC entry 3328 (class 2606 OID 57642)
 -- Name: estado_uso estado_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11239,7 +11597,7 @@ ALTER TABLE ONLY dielab.estado_uso
 
 
 --
--- TOC entry 3319 (class 2606 OID 57640)
+-- TOC entry 3330 (class 2606 OID 57640)
 -- Name: estado_uso estado_uso_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11248,7 +11606,7 @@ ALTER TABLE ONLY dielab.estado_uso
 
 
 --
--- TOC entry 3271 (class 2606 OID 74018)
+-- TOC entry 3282 (class 2606 OID 74018)
 -- Name: tipo_guante gua_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11257,7 +11615,7 @@ ALTER TABLE ONLY dielab.tipo_guante
 
 
 --
--- TOC entry 3327 (class 2606 OID 65837)
+-- TOC entry 3338 (class 2606 OID 65837)
 -- Name: largo_cubrelinea largo_cubrelinea_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11266,7 +11624,7 @@ ALTER TABLE ONLY dielab.largo_cubrelinea
 
 
 --
--- TOC entry 3323 (class 2606 OID 65816)
+-- TOC entry 3334 (class 2606 OID 65816)
 -- Name: largo_manta largo_manta_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11275,7 +11633,7 @@ ALTER TABLE ONLY dielab.largo_manta
 
 
 --
--- TOC entry 3343 (class 2606 OID 65966)
+-- TOC entry 3354 (class 2606 OID 65966)
 -- Name: largo_pertiga largo_pertiga_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11284,7 +11642,7 @@ ALTER TABLE ONLY dielab.largo_pertiga
 
 
 --
--- TOC entry 3281 (class 2606 OID 24804)
+-- TOC entry 3292 (class 2606 OID 24804)
 -- Name: largo_guante lguante_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11293,7 +11651,7 @@ ALTER TABLE ONLY dielab.largo_guante
 
 
 --
--- TOC entry 3339 (class 2606 OID 74020)
+-- TOC entry 3350 (class 2606 OID 74020)
 -- Name: tipo_loadbuster loa_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11302,7 +11660,7 @@ ALTER TABLE ONLY dielab.tipo_loadbuster
 
 
 --
--- TOC entry 3299 (class 2606 OID 74024)
+-- TOC entry 3310 (class 2606 OID 74024)
 -- Name: tipo_manguilla man_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11311,7 +11669,7 @@ ALTER TABLE ONLY dielab.tipo_manguilla
 
 
 --
--- TOC entry 3279 (class 2606 OID 24799)
+-- TOC entry 3290 (class 2606 OID 24799)
 -- Name: marca marca_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11320,7 +11678,7 @@ ALTER TABLE ONLY dielab.marca
 
 
 --
--- TOC entry 3308 (class 2606 OID 74026)
+-- TOC entry 3319 (class 2606 OID 74026)
 -- Name: tipo_manta mat_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11329,7 +11687,7 @@ ALTER TABLE ONLY dielab.tipo_manta
 
 
 --
--- TOC entry 3351 (class 2606 OID 82298)
+-- TOC entry 3362 (class 2606 OID 82298)
 -- Name: meses mese_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11338,7 +11696,16 @@ ALTER TABLE ONLY dielab.meses
 
 
 --
--- TOC entry 3246 (class 2606 OID 16448)
+-- TOC entry 3257 (class 2606 OID 90481)
+-- Name: patron mmse_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
+--
+
+ALTER TABLE ONLY dielab.patron
+    ADD CONSTRAINT mmse_unico UNIQUE (marca, modelo, serie);
+
+
+--
+-- TOC entry 3255 (class 2606 OID 16448)
 -- Name: negocio negocio_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11347,7 +11714,7 @@ ALTER TABLE ONLY dielab.negocio
 
 
 --
--- TOC entry 3329 (class 2606 OID 65839)
+-- TOC entry 3340 (class 2606 OID 65839)
 -- Name: largo_cubrelinea nombre_cubrelinea_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11356,7 +11723,7 @@ ALTER TABLE ONLY dielab.largo_cubrelinea
 
 
 --
--- TOC entry 3333 (class 2606 OID 65913)
+-- TOC entry 3344 (class 2606 OID 65913)
 -- Name: cuerpos_aterramiento nombre_cuerpos_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11365,7 +11732,7 @@ ALTER TABLE ONLY dielab.cuerpos_aterramiento
 
 
 --
--- TOC entry 3345 (class 2606 OID 65968)
+-- TOC entry 3356 (class 2606 OID 65968)
 -- Name: largo_pertiga nombre_largo_pertiga_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11374,7 +11741,7 @@ ALTER TABLE ONLY dielab.largo_pertiga
 
 
 --
--- TOC entry 3325 (class 2606 OID 65818)
+-- TOC entry 3336 (class 2606 OID 65818)
 -- Name: largo_manta nombre_manta_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11383,7 +11750,7 @@ ALTER TABLE ONLY dielab.largo_manta
 
 
 --
--- TOC entry 3242 (class 2606 OID 90428)
+-- TOC entry 3251 (class 2606 OID 90428)
 -- Name: tecnicos_ensayo nombre_tecnico_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11392,7 +11759,7 @@ ALTER TABLE ONLY dielab.tecnicos_ensayo
 
 
 --
--- TOC entry 3248 (class 2606 OID 16456)
+-- TOC entry 3259 (class 2606 OID 16456)
 -- Name: patron patron_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11401,7 +11768,7 @@ ALTER TABLE ONLY dielab.patron
 
 
 --
--- TOC entry 3347 (class 2606 OID 74028)
+-- TOC entry 3358 (class 2606 OID 74028)
 -- Name: tipo_pertiga per_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11410,7 +11777,7 @@ ALTER TABLE ONLY dielab.tipo_pertiga
 
 
 --
--- TOC entry 3292 (class 2606 OID 33070)
+-- TOC entry 3303 (class 2606 OID 33070)
 -- Name: perfil perfil_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11419,7 +11786,7 @@ ALTER TABLE ONLY dielab.perfil
 
 
 --
--- TOC entry 3321 (class 2606 OID 57662)
+-- TOC entry 3332 (class 2606 OID 57662)
 -- Name: periodicidad periodicidad_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11428,7 +11795,7 @@ ALTER TABLE ONLY dielab.periodicidad
 
 
 --
--- TOC entry 3290 (class 2606 OID 33055)
+-- TOC entry 3301 (class 2606 OID 33055)
 -- Name: personas personas_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11437,7 +11804,7 @@ ALTER TABLE ONLY dielab.personas
 
 
 --
--- TOC entry 3286 (class 2606 OID 24833)
+-- TOC entry 3297 (class 2606 OID 24833)
 -- Name: epps serie_unica; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11446,7 +11813,7 @@ ALTER TABLE ONLY dielab.epps
 
 
 --
--- TOC entry 3240 (class 2606 OID 16416)
+-- TOC entry 3249 (class 2606 OID 16416)
 -- Name: sucursales sucursales_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11455,7 +11822,7 @@ ALTER TABLE ONLY dielab.sucursales
 
 
 --
--- TOC entry 3244 (class 2606 OID 16440)
+-- TOC entry 3253 (class 2606 OID 16440)
 -- Name: tecnicos_ensayo tecnicos_ensayo_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11464,7 +11831,7 @@ ALTER TABLE ONLY dielab.tecnicos_ensayo
 
 
 --
--- TOC entry 3337 (class 2606 OID 65922)
+-- TOC entry 3348 (class 2606 OID 65922)
 -- Name: tipo_aterramiento tipo_aterramiento_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11473,7 +11840,7 @@ ALTER TABLE ONLY dielab.tipo_aterramiento
 
 
 --
--- TOC entry 3315 (class 2606 OID 49492)
+-- TOC entry 3326 (class 2606 OID 49492)
 -- Name: tipo_banqueta tipo_banqueta_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11482,7 +11849,7 @@ ALTER TABLE ONLY dielab.tipo_banqueta
 
 
 --
--- TOC entry 3305 (class 2606 OID 49466)
+-- TOC entry 3316 (class 2606 OID 49466)
 -- Name: tipo_cubrelinea tipo_cubrelinea_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11491,7 +11858,7 @@ ALTER TABLE ONLY dielab.tipo_cubrelinea
 
 
 --
--- TOC entry 3267 (class 2606 OID 57623)
+-- TOC entry 3278 (class 2606 OID 57623)
 -- Name: clase_epp tipo_ens_unico; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11500,7 +11867,7 @@ ALTER TABLE ONLY dielab.clase_epp
 
 
 --
--- TOC entry 3273 (class 2606 OID 24736)
+-- TOC entry 3284 (class 2606 OID 24736)
 -- Name: tipo_guante tipo_guante_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11509,7 +11876,7 @@ ALTER TABLE ONLY dielab.tipo_guante
 
 
 --
--- TOC entry 3341 (class 2606 OID 65949)
+-- TOC entry 3352 (class 2606 OID 65949)
 -- Name: tipo_loadbuster tipo_loadbuster_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11518,7 +11885,7 @@ ALTER TABLE ONLY dielab.tipo_loadbuster
 
 
 --
--- TOC entry 3301 (class 2606 OID 49445)
+-- TOC entry 3312 (class 2606 OID 49445)
 -- Name: tipo_manguilla tipo_manguilla_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11527,7 +11894,7 @@ ALTER TABLE ONLY dielab.tipo_manguilla
 
 
 --
--- TOC entry 3310 (class 2606 OID 49479)
+-- TOC entry 3321 (class 2606 OID 49479)
 -- Name: tipo_manta tipo_manta_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11536,7 +11903,7 @@ ALTER TABLE ONLY dielab.tipo_manta
 
 
 --
--- TOC entry 3349 (class 2606 OID 65977)
+-- TOC entry 3360 (class 2606 OID 65977)
 -- Name: tipo_pertiga tipo_pertiga_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11545,7 +11912,7 @@ ALTER TABLE ONLY dielab.tipo_pertiga
 
 
 --
--- TOC entry 3297 (class 2606 OID 33100)
+-- TOC entry 3308 (class 2606 OID 33100)
 -- Name: usuarios usuarios_pkey; Type: CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11554,7 +11921,7 @@ ALTER TABLE ONLY dielab.usuarios
 
 
 --
--- TOC entry 3268 (class 1259 OID 41262)
+-- TOC entry 3279 (class 1259 OID 41262)
 -- Name: fki_fk_clase_epp; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11562,7 +11929,7 @@ CREATE INDEX fki_fk_clase_epp ON dielab.tipo_guante USING btree (clase);
 
 
 --
--- TOC entry 3269 (class 1259 OID 41268)
+-- TOC entry 3280 (class 1259 OID 41268)
 -- Name: fki_fk_clase_tipo; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11570,7 +11937,7 @@ CREATE INDEX fki_fk_clase_tipo ON dielab.tipo_guante USING btree (clase);
 
 
 --
--- TOC entry 3293 (class 1259 OID 33111)
+-- TOC entry 3304 (class 1259 OID 33111)
 -- Name: fki_fk_cliente; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11578,7 +11945,7 @@ CREATE INDEX fki_fk_cliente ON dielab.usuarios USING btree (cliente);
 
 
 --
--- TOC entry 3284 (class 1259 OID 57654)
+-- TOC entry 3295 (class 1259 OID 57654)
 -- Name: fki_fk_estado_uso; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11586,7 +11953,7 @@ CREATE INDEX fki_fk_estado_uso ON dielab.epps USING btree (estado_uso);
 
 
 --
--- TOC entry 3306 (class 1259 OID 65824)
+-- TOC entry 3317 (class 1259 OID 65824)
 -- Name: fki_fk_largo; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11594,7 +11961,7 @@ CREATE INDEX fki_fk_largo ON dielab.tipo_manta USING btree (largo);
 
 
 --
--- TOC entry 3313 (class 1259 OID 65855)
+-- TOC entry 3324 (class 1259 OID 65855)
 -- Name: fki_fk_marca; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11602,7 +11969,7 @@ CREATE INDEX fki_fk_marca ON dielab.tipo_banqueta USING btree (cod_marca);
 
 
 --
--- TOC entry 3294 (class 1259 OID 33118)
+-- TOC entry 3305 (class 1259 OID 33118)
 -- Name: fki_fk_perfil; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11610,7 +11977,7 @@ CREATE INDEX fki_fk_perfil ON dielab.usuarios USING btree (perfil);
 
 
 --
--- TOC entry 3295 (class 1259 OID 33112)
+-- TOC entry 3306 (class 1259 OID 33112)
 -- Name: fki_fk_rut; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11618,7 +11985,7 @@ CREATE INDEX fki_fk_rut ON dielab.usuarios USING btree (rut);
 
 
 --
--- TOC entry 3265 (class 1259 OID 57621)
+-- TOC entry 3276 (class 1259 OID 57621)
 -- Name: fki_fk_tipo_ensayo; Type: INDEX; Schema: dielab; Owner: postgres
 --
 
@@ -11626,7 +11993,7 @@ CREATE INDEX fki_fk_tipo_ensayo ON dielab.clase_epp USING btree (tipo_ensayo);
 
 
 --
--- TOC entry 3378 (class 2620 OID 82333)
+-- TOC entry 3389 (class 2620 OID 82333)
 -- Name: patron trig_act_calibracion; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11634,7 +12001,7 @@ CREATE TRIGGER trig_act_calibracion BEFORE INSERT OR UPDATE ON dielab.patron FOR
 
 
 --
--- TOC entry 3379 (class 2620 OID 16553)
+-- TOC entry 3390 (class 2620 OID 16553)
 -- Name: encabezado_ensayo trig_act_estado; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11642,7 +12009,7 @@ CREATE TRIGGER trig_act_estado AFTER INSERT OR UPDATE ON dielab.encabezado_ensay
 
 
 --
--- TOC entry 3385 (class 2620 OID 74002)
+-- TOC entry 3396 (class 2620 OID 74002)
 -- Name: tipo_aterramiento trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11650,7 +12017,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_aterramient
 
 
 --
--- TOC entry 3384 (class 2620 OID 74003)
+-- TOC entry 3395 (class 2620 OID 74003)
 -- Name: tipo_banqueta trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11658,7 +12025,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_banqueta FO
 
 
 --
--- TOC entry 3382 (class 2620 OID 74004)
+-- TOC entry 3393 (class 2620 OID 74004)
 -- Name: tipo_cubrelinea trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11666,7 +12033,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_cubrelinea 
 
 
 --
--- TOC entry 3380 (class 2620 OID 74005)
+-- TOC entry 3391 (class 2620 OID 74005)
 -- Name: tipo_guante trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11674,7 +12041,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_guante FOR 
 
 
 --
--- TOC entry 3386 (class 2620 OID 74006)
+-- TOC entry 3397 (class 2620 OID 74006)
 -- Name: tipo_loadbuster trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11682,7 +12049,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_loadbuster 
 
 
 --
--- TOC entry 3381 (class 2620 OID 74001)
+-- TOC entry 3392 (class 2620 OID 74001)
 -- Name: tipo_manguilla trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11690,7 +12057,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_manguilla F
 
 
 --
--- TOC entry 3383 (class 2620 OID 74007)
+-- TOC entry 3394 (class 2620 OID 74007)
 -- Name: tipo_manta trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11698,7 +12065,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_manta FOR E
 
 
 --
--- TOC entry 3387 (class 2620 OID 74008)
+-- TOC entry 3398 (class 2620 OID 74008)
 -- Name: tipo_pertiga trig_act_marca; Type: TRIGGER; Schema: dielab; Owner: postgres
 --
 
@@ -11706,7 +12073,7 @@ CREATE TRIGGER trig_act_marca BEFORE INSERT OR UPDATE ON dielab.tipo_pertiga FOR
 
 
 --
--- TOC entry 3358 (class 2606 OID 41269)
+-- TOC entry 3369 (class 2606 OID 41269)
 -- Name: epps fk_clase_epp; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11715,7 +12082,7 @@ ALTER TABLE ONLY dielab.epps
 
 
 --
--- TOC entry 3355 (class 2606 OID 41263)
+-- TOC entry 3366 (class 2606 OID 41263)
 -- Name: tipo_guante fk_clase_tipo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11724,7 +12091,7 @@ ALTER TABLE ONLY dielab.tipo_guante
 
 
 --
--- TOC entry 3363 (class 2606 OID 49446)
+-- TOC entry 3374 (class 2606 OID 49446)
 -- Name: tipo_manguilla fk_clase_tipo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11733,7 +12100,7 @@ ALTER TABLE ONLY dielab.tipo_manguilla
 
 
 --
--- TOC entry 3365 (class 2606 OID 49467)
+-- TOC entry 3376 (class 2606 OID 49467)
 -- Name: tipo_cubrelinea fk_clase_tipo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11742,7 +12109,7 @@ ALTER TABLE ONLY dielab.tipo_cubrelinea
 
 
 --
--- TOC entry 3368 (class 2606 OID 49480)
+-- TOC entry 3379 (class 2606 OID 49480)
 -- Name: tipo_manta fk_clase_tipo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11751,7 +12118,7 @@ ALTER TABLE ONLY dielab.tipo_manta
 
 
 --
--- TOC entry 3371 (class 2606 OID 49493)
+-- TOC entry 3382 (class 2606 OID 49493)
 -- Name: tipo_banqueta fk_clase_tipo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11760,7 +12127,7 @@ ALTER TABLE ONLY dielab.tipo_banqueta
 
 
 --
--- TOC entry 3360 (class 2606 OID 33101)
+-- TOC entry 3371 (class 2606 OID 33101)
 -- Name: usuarios fk_cliente; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11769,7 +12136,7 @@ ALTER TABLE ONLY dielab.usuarios
 
 
 --
--- TOC entry 3359 (class 2606 OID 57649)
+-- TOC entry 3370 (class 2606 OID 57649)
 -- Name: epps fk_estado_uso; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11778,7 +12145,7 @@ ALTER TABLE ONLY dielab.epps
 
 
 --
--- TOC entry 3369 (class 2606 OID 65819)
+-- TOC entry 3380 (class 2606 OID 65819)
 -- Name: tipo_manta fk_largo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11787,7 +12154,7 @@ ALTER TABLE ONLY dielab.tipo_manta
 
 
 --
--- TOC entry 3366 (class 2606 OID 65840)
+-- TOC entry 3377 (class 2606 OID 65840)
 -- Name: tipo_cubrelinea fk_largo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11796,7 +12163,7 @@ ALTER TABLE ONLY dielab.tipo_cubrelinea
 
 
 --
--- TOC entry 3357 (class 2606 OID 65872)
+-- TOC entry 3368 (class 2606 OID 65872)
 -- Name: tipo_guante fk_largo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11805,7 +12172,7 @@ ALTER TABLE ONLY dielab.tipo_guante
 
 
 --
--- TOC entry 3373 (class 2606 OID 65923)
+-- TOC entry 3384 (class 2606 OID 65923)
 -- Name: tipo_aterramiento fk_largo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11814,7 +12181,7 @@ ALTER TABLE ONLY dielab.tipo_aterramiento
 
 
 --
--- TOC entry 3376 (class 2606 OID 65978)
+-- TOC entry 3387 (class 2606 OID 65978)
 -- Name: tipo_pertiga fk_largo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11823,7 +12190,7 @@ ALTER TABLE ONLY dielab.tipo_pertiga
 
 
 --
--- TOC entry 3372 (class 2606 OID 65850)
+-- TOC entry 3383 (class 2606 OID 65850)
 -- Name: tipo_banqueta fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11832,7 +12199,7 @@ ALTER TABLE ONLY dielab.tipo_banqueta
 
 
 --
--- TOC entry 3367 (class 2606 OID 65856)
+-- TOC entry 3378 (class 2606 OID 65856)
 -- Name: tipo_cubrelinea fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11841,7 +12208,7 @@ ALTER TABLE ONLY dielab.tipo_cubrelinea
 
 
 --
--- TOC entry 3356 (class 2606 OID 65861)
+-- TOC entry 3367 (class 2606 OID 65861)
 -- Name: tipo_guante fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11850,7 +12217,7 @@ ALTER TABLE ONLY dielab.tipo_guante
 
 
 --
--- TOC entry 3364 (class 2606 OID 65886)
+-- TOC entry 3375 (class 2606 OID 65886)
 -- Name: tipo_manguilla fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11859,7 +12226,7 @@ ALTER TABLE ONLY dielab.tipo_manguilla
 
 
 --
--- TOC entry 3370 (class 2606 OID 65892)
+-- TOC entry 3381 (class 2606 OID 65892)
 -- Name: tipo_manta fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11868,7 +12235,7 @@ ALTER TABLE ONLY dielab.tipo_manta
 
 
 --
--- TOC entry 3374 (class 2606 OID 65928)
+-- TOC entry 3385 (class 2606 OID 65928)
 -- Name: tipo_aterramiento fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11877,7 +12244,7 @@ ALTER TABLE ONLY dielab.tipo_aterramiento
 
 
 --
--- TOC entry 3375 (class 2606 OID 65950)
+-- TOC entry 3386 (class 2606 OID 65950)
 -- Name: tipo_loadbuster fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11886,7 +12253,7 @@ ALTER TABLE ONLY dielab.tipo_loadbuster
 
 
 --
--- TOC entry 3377 (class 2606 OID 65983)
+-- TOC entry 3388 (class 2606 OID 65983)
 -- Name: tipo_pertiga fk_marca; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11895,7 +12262,7 @@ ALTER TABLE ONLY dielab.tipo_pertiga
 
 
 --
--- TOC entry 3362 (class 2606 OID 33113)
+-- TOC entry 3373 (class 2606 OID 33113)
 -- Name: usuarios fk_perfil; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11904,7 +12271,7 @@ ALTER TABLE ONLY dielab.usuarios
 
 
 --
--- TOC entry 3361 (class 2606 OID 33106)
+-- TOC entry 3372 (class 2606 OID 33106)
 -- Name: usuarios fk_rut; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11913,7 +12280,7 @@ ALTER TABLE ONLY dielab.usuarios
 
 
 --
--- TOC entry 3354 (class 2606 OID 57616)
+-- TOC entry 3365 (class 2606 OID 57616)
 -- Name: clase_epp fk_tipo_ensayo; Type: FK CONSTRAINT; Schema: dielab; Owner: postgres
 --
 
@@ -11921,7 +12288,7 @@ ALTER TABLE ONLY dielab.clase_epp
     ADD CONSTRAINT fk_tipo_ensayo FOREIGN KEY (tipo_ensayo) REFERENCES dielab.ensayos_tipo(id_ensayo_tipo) MATCH FULL ON UPDATE RESTRICT ON DELETE RESTRICT;
 
 
--- Completed on 2022-07-22 22:50:54
+-- Completed on 2022-07-24 22:03:48
 
 --
 -- PostgreSQL database dump complete
